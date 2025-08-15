@@ -4,8 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import javax.inject.Inject;
-
 public final class SimplePolls extends JavaPlugin {
 
     private Injector injector;
@@ -14,7 +12,6 @@ public final class SimplePolls extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         injector = Guice.createInjector();
-
     }
 
     @Override
