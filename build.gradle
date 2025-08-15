@@ -1,0 +1,137 @@
+import xyz.jpenilla.runtask.task.AbstractRun
+
+plugins {
+    id 'java'
+    id("xyz.jpenilla.run-paper") version "2.3.1"
+    id("com.diffplug.spotless") version "7.0.3"
+    id("com.gradleup.shadow") version "9.0.0-beta13"
+    id 'io.freefair.lombok' version '8.14' // Lombok plugin
+}
+
+group = 'me.jrb326'
+var baseVersion = '1.0.0'
+
+def getCurrentGitCommitShortId() {
+    def output = new ByteArrayOutputStream()
+    try {
+        exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = output
+        }
+    } catch (Exception e) {
+        logger.warn("Could not retrieve Git commit ID: ${e.message}")
+    }
+    return output.toString().trim() ?: 'unknown-commit'
+}
+
+def getCurrentGitBranchName() {
+    def output = new ByteArrayOutputStream()
+    try {
+        exec {
+            commandLine 'git', 'rev-parse', '--abbrev-ref', 'HEAD'
+            standardOutput = output
+        }
+    } catch (Exception e) {
+        logger.warn("Could not retrieve Git branch name: ${e.message}")
+    }
+    return output.toString().trim() ?: 'unknown-branch'
+}
+
+def gitCommitId = getCurrentGitCommitShortId()
+def gitBranchName = getCurrentGitBranchName()
+def dynamicVersion = "${gitBranchName}-${gitCommitId}-${baseVersion}"
+version = dynamicVersion
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "papermc-repo"
+        url = "https://repo.papermc.io/repository/maven-public/"
+    }
+}
+
+dependencies {
+    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    implementation 'com.google.inject:guice:7.0.0'
+    implementation 'org.jdbi:jdbi3-core:3.49.5'
+    implementation 'org.jdbi:jdbi3-sqlobject:3.49.5'
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+    implementation 'org.incendo:cloud-paper:2.0.0-beta.10'
+    implementation 'org.incendo:cloud-annotations:2.0.0'
+    implementation 'org.incendo:cloud-minecraft-extras:2.0.0-beta.10'
+    implementation 'com.github.stefvanschie.inventoryframework:IF:0.11.2'
+    implementation 'mysql:mysql-connector-java:8.0.33'
+    implementation 'org.flywaydb:flyway-core:10.13.0'
+    implementation 'org.slf4j:slf4j-api:2.0.12'
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+}
+
+tasks.withType(AbstractRun).configureEach {
+    javaLauncher = javaToolchains.launcherFor {
+        vendor = JvmVendorSpec.JETBRAINS
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    jvmArgs("-XX:+AllowEnhancedClassRedefinition")
+}
+
+tasks {
+
+    jar {
+        enabled = false
+    }
+    runServer {
+        // Configure the Minecraft version for our task.
+        // This is the only required configuration besides applying the plugin.
+        // Your plugin's jar (or shadowJar if present) will be used automatically.
+        minecraftVersion("1.21")
+    }
+    shadowJar {
+        archiveFileName.set("simplepolls-paper-${project.version}.jar")
+        destinationDirectory.set(rootProject.layout.buildDirectory.dir("libs"))
+        archiveClassifier.set("")
+
+    }
+    build {
+        dependsOn(shadowJar)
+    }
+}
+
+spotless {
+    java {
+        removeUnusedImports()
+        palantirJavaFormat()
+        formatAnnotations()
+    }
+}
+
+def targetJavaVersion = 21
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release.set(targetJavaVersion)
+    }
+}
+
+processResources {
+    def props = [version: version, logLevel: (project.hasProperty('logLevel') ? project.getProperty('logLevel') : 'INFO')]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('paper-plugin.yml') {
+        expand (version: dynamicVersion)
+    }
+    filesMatching('logback.xml') {
+        expand (logLevel: props.logLevel)
+    }
+}

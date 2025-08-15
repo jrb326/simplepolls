@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  minecraft:
+    image: itzg/minecraft-server:latest
+    environment:
+      EULA: "TRUE"
+      TYPE: PAPER
+      MEMORY: 2G
+      ONLINE_MODE: "FALSE"
+    volumes:
+      - ./minecraft-data:/data
+      - ./config/paper-global.yml:/config/paper-global.yml:ro
+    ports:
+      - "25565:25565"
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: examplepassword
+      MYSQL_DATABASE: minecraft
+      MYSQL_USER: minecraft
+      MYSQL_PASSWORD: mcpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  minecraft-data:
+  mysql-data:

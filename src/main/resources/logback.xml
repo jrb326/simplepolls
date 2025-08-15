@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2025 Northview LLC.
+  ~
+  ~ This file and its contents are confidential and proprietary to Northview LLC.
+  ~ Unauthorized access, use, reproduction, modification, distribution, or disclosure of this
+  ~ code, in whole or in part, is strictly prohibited without the express, prior, written, and
+  ~ signed consent of Northview LLC or its authorized representatives.
+  ~
+  ~ This code is private property and is NOT open source. If you are reading this notice
+  ~ and do not have explicit permission to access this intellectual property, you are in
+  ~ violation of Northview LLC's intellectual property rights and may be subject to civil
+  ~ and/or criminal penalties under applicable law.
+  -->
+
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <logger name="me.jrb326.simplePolls" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE" />
+    </logger>
+</configuration>
+
