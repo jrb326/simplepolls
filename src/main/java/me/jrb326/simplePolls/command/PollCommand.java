@@ -22,6 +22,7 @@ public class PollCommand {
 
     @Command("poll")
     @CommandDescription("Open the polls GUI to view and vote on active polls")
+    @org.incendo.cloud.annotations.Permission("simplepolls.use")
     public void poll(Player player) {
         logger.info("Player {} executed /poll command", player.getName());
         guiManager.openPollList(player);

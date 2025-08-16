@@ -1,4 +1,8 @@
 name: SimplePolls
-version: '1.0-SNAPSHOT'
+version: '${version}'
 main: me.jrb326.simplePolls.SimplePolls
 api-version: '1.21'
+permissions:
+  simplepolls.use:
+    description: 'Access to view and vote on polls'
+    default: true

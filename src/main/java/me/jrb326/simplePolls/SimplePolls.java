@@ -23,8 +23,8 @@ public final class SimplePolls extends JavaPlugin {
     public void onEnable() {
         try {
             // Create injector with all modules
-            injector =
-                    Guice.createInjector(new LoggerModule(), new DatabaseModule(), new CommandModule(this), binder -> {
+            injector = Guice.createInjector(
+                    new LoggerModule(), new DatabaseModule(this), new CommandModule(this), binder -> {
                         binder.bind(JavaPlugin.class).toInstance(this);
                         binder.bind(GuiManager.class).asEagerSingleton();
                         binder.bind(PollCommand.class).asEagerSingleton();

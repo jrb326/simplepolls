@@ -47,11 +47,11 @@ public class PollVoteGUI {
         String playerId = player.getUniqueId().toString();
         boolean hasVoted = pollService.hasPlayerVoted(pollId, playerId);
 
-        ChestGui gui = new ChestGui(
-                3,
-                "Vote: "
-                        + poll.getQuestion()
-                                .substring(0, Math.min(poll.getQuestion().length(), 20)) + "...");
+        // Create a more readable title
+        String title =
+                poll.getQuestion().length() > 20 ? poll.getQuestion().substring(0, 20) + "..." : poll.getQuestion();
+
+        ChestGui gui = new ChestGui(3, "Vote: " + title);
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
         StaticPane pane = new StaticPane(9, 3);

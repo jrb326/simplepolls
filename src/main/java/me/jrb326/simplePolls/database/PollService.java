@@ -23,19 +23,39 @@ public class PollService {
     }
 
     public List<Poll> getActivePolls() {
-        return jdbi.withExtension(PollDao.class, PollDao::findActivePolls);
+        try {
+            return jdbi.withExtension(PollDao.class, PollDao::findActivePolls);
+        } catch (Exception e) {
+            logger.error("Failed to fetch active polls", e);
+            return List.of();
+        }
     }
 
     public Optional<Poll> getPoll(String pollId) {
-        return jdbi.withExtension(PollDao.class, dao -> dao.findById(pollId));
+        try {
+            return jdbi.withExtension(PollDao.class, dao -> dao.findById(pollId));
+        } catch (Exception e) {
+            logger.error("Failed to fetch poll with id {}", pollId, e);
+            return Optional.empty();
+        }
     }
 
     public List<PollOption> getPollOptions(String pollId) {
-        return jdbi.withExtension(PollOptionDao.class, dao -> dao.findByPollId(pollId));
+        try {
+            return jdbi.withExtension(PollOptionDao.class, dao -> dao.findByPollId(pollId));
+        } catch (Exception e) {
+            logger.error("Failed to fetch options for poll {}", pollId, e);
+            return List.of();
+        }
     }
 
     public Optional<Vote> getPlayerVote(String pollId, String playerId) {
-        return jdbi.withExtension(VoteDao.class, dao -> dao.findVote(pollId, playerId));
+        try {
+            return jdbi.withExtension(VoteDao.class, dao -> dao.findVote(pollId, playerId));
+        } catch (Exception e) {
+            logger.error("Failed to fetch vote for player {} in poll {}", playerId, pollId, e);
+            return Optional.empty();
+        }
     }
 
     public boolean hasPlayerVoted(String pollId, String playerId) {
@@ -54,6 +74,11 @@ public class PollService {
     }
 
     public int getVoteCount(String optionId) {
-        return jdbi.withExtension(VoteDao.class, dao -> dao.getVoteCount(optionId));
+        try {
+            return jdbi.withExtension(VoteDao.class, dao -> dao.getVoteCount(optionId));
+        } catch (Exception e) {
+            logger.error("Failed to get vote count for option {}", optionId, e);
+            return 0;
+        }
     }
 }
