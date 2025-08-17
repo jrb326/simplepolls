@@ -17,4 +17,11 @@ public class PollOption {
     private int sortOrder;
     private Material iconMaterial;
     private Integer customModelData;
+
+    public Material getIcon() {
+        if (iconMaterial != null) {
+            return iconMaterial;
+        }
+        return Material.PAPER; // Default icon
+    }
 }

@@ -4,9 +4,11 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import me.jrb326.simplePolls.SimplePolls;
 import me.jrb326.simplePolls.commands.CreatePollCommand;
+import me.jrb326.simplePolls.commands.PollCommand;
 import me.jrb326.simplePolls.commands.PollCommands;
 import me.jrb326.simplePolls.gui.ChatInputHandler;
 import me.jrb326.simplePolls.gui.CreatePollGui;
+import me.jrb326.simplePolls.gui.GuiManager;
 import me.jrb326.simplePolls.service.PollService;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.incendo.cloud.CommandManager;
@@ -33,8 +35,10 @@ public class CommandModule extends AbstractModule {
         bind(PollService.class).in(Singleton.class);
         bind(ChatInputHandler.class).in(Singleton.class);
         bind(CreatePollGui.class).in(Singleton.class);
+        bind(GuiManager.class).in(Singleton.class);
         bind(CreatePollCommand.class).in(Singleton.class);
         bind(PollCommands.class).in(Singleton.class);
+        bind(PollCommand.class).in(Singleton.class);
     }
 
     @Provides
