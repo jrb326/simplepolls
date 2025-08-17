@@ -1,6 +1,6 @@
 package me.jrb326.simplePolls.service;
 
-import me.jrb326.simplePolls.database.PollDAO;
+import me.jrb326.simplePolls.database.PollDao;
 import me.jrb326.simplePolls.logging.InjectLogger;
 import me.jrb326.simplePolls.model.Poll;
 import me.jrb326.simplePolls.model.PollOption;
@@ -76,12 +76,12 @@ public class PollService {
     }
 
     public Optional<Poll> getPoll(String pollId) {
-        return jdbi.withExtension(PollDAO.class, dao -> dao.findById(pollId));
+        return jdbi.withExtension(PollDao.class, dao -> dao.findById(pollId));
     }
 
     public boolean closePoll(String pollId, UUID closedBy, String reason) {
         int updated = jdbi.withExtension(
-                PollDAO.class, dao -> dao.closePoll(pollId, Instant.now(), closedBy.toString(), reason));
+                PollDao.class, dao -> dao.closePoll(pollId, Instant.now(), closedBy.toString(), reason));
 
         if (updated > 0) {
             logger.info("Poll {} closed by {} with reason: {}", pollId, closedBy, reason);
@@ -93,7 +93,7 @@ public class PollService {
     }
 
     public boolean removePoll(String pollId) {
-        int deleted = jdbi.withExtension(PollDAO.class, dao -> dao.deletePoll(pollId));
+        int deleted = jdbi.withExtension(PollDao.class, dao -> dao.deletePoll(pollId));
 
         if (deleted > 0) {
             logger.info("Poll {} removed", pollId);

@@ -25,6 +25,9 @@ public class DatabaseModule extends AbstractModule {
     protected void configure() {
         // Bind DAO interfaces to implementations
         bind(PollDAO.class);
+        bind(PollDao.class);
+        bind(PollOptionDao.class);
+        bind(VoteDao.class);
     }
 
     @Provides
