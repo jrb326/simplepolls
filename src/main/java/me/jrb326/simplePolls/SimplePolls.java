@@ -3,6 +3,8 @@ package me.jrb326.simplePolls;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import me.jrb326.simplePolls.commands.CreatePollCommand;
+import me.jrb326.simplePolls.commands.PollCommands;
+import me.jrb326.simplePolls.database.DatabaseModule;
 import me.jrb326.simplePolls.gui.ChatInputHandler;
 import me.jrb326.simplePolls.logging.InjectLogger;
 import me.jrb326.simplePolls.logging.LoggerModule;
@@ -27,6 +29,7 @@ public final class SimplePolls extends JavaPlugin {
         // Create Guice injector with modules
         injector = Guice.createInjector(
             new LoggerModule(),
+            new DatabaseModule(this),
             new CommandModule(this)
         );
         
@@ -37,8 +40,7 @@ public final class SimplePolls extends JavaPlugin {
         annotationParser = injector.getInstance(AnnotationParser.class);
         
         // Register commands
-        CreatePollCommand createPollCommand = injector.getInstance(CreatePollCommand.class);
-        annotationParser.parse(createPollCommand);
+        registerCommands();
         
         // Register event listeners
         ChatInputHandler chatInputHandler = injector.getInstance(ChatInputHandler.class);
@@ -52,6 +54,22 @@ public final class SimplePolls extends JavaPlugin {
         // Plugin shutdown logic
         if (logger != null) {
             logger.info("Disabling SimplePolls plugin...");
+        }
+    }
+
+    private void registerCommands() {
+        try {
+            // Register CreatePoll command
+            CreatePollCommand createPollCommand = injector.getInstance(CreatePollCommand.class);
+            annotationParser.parse(createPollCommand);
+            
+            // Register staff commands
+            PollCommands pollCommands = injector.getInstance(PollCommands.class);
+            annotationParser.parse(pollCommands);
+            
+            logger.info("Commands registered successfully.");
+        } catch (Exception e) {
+            logger.error("Failed to register commands", e);
         }
     }
 }

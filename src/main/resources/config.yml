@@ -1,0 +1,15 @@
+# SimplePolls Configuration
+
+# Database settings
+database:
+  url: "jdbc:mysql://localhost:3306/simplepolls"
+  username: "root"
+  password: ""
+  maxPoolSize: 10
+
+# Plugin settings
+settings:
+  # Maximum number of poll options (1-6)
+  maxPollOptions: 6
+  # Default poll duration in minutes (0 = no limit)
+  defaultDuration: 0

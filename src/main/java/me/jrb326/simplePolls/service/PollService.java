@@ -1,14 +1,17 @@
 package me.jrb326.simplePolls.service;
 
+import me.jrb326.simplePolls.database.PollDAO;
 import me.jrb326.simplePolls.logging.InjectLogger;
 import me.jrb326.simplePolls.model.Poll;
 import me.jrb326.simplePolls.model.PollOption;
+import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Singleton
@@ -17,9 +20,11 @@ public class PollService {
     @InjectLogger
     private Logger logger;
 
+    private final Jdbi jdbi;
+
     @Inject
-    public PollService() {
-        // Constructor for DI
+    public PollService(Jdbi jdbi) {
+        this.jdbi = jdbi;
     }
 
     public void createPoll(String question, List<PollOption> options, UUID createdBy) {
@@ -33,7 +38,7 @@ public class PollService {
         Poll poll = Poll.builder()
             .id(pollId)
             .question(question)
-            .createdBy(createdBy)
+            .createdBy(createdBy.toString())
             .isOpen(true)
             .createdAt(Instant.now())
             .options(validOptions)
@@ -50,7 +55,7 @@ public class PollService {
         logger.info("Creating poll '{}' with {} options for player {}", 
                    question, validOptions.size(), createdBy);
         
-        // TODO: Implement database persistence
+        // TODO: Implement database persistence for poll creation
         // For now, just log the creation
         logger.info("Poll created with ID: {}", pollId);
     }
@@ -68,5 +73,34 @@ public class PollService {
         return options.stream()
                 .allMatch(option -> option.getOptionText() != null && 
                          !option.getOptionText().trim().isEmpty());
+    }
+
+    public Optional<Poll> getPoll(String pollId) {
+        return jdbi.withExtension(PollDAO.class, dao -> dao.findById(pollId));
+    }
+
+    public boolean closePoll(String pollId, UUID closedBy, String reason) {
+        int updated = jdbi.withExtension(
+                PollDAO.class, dao -> dao.closePoll(pollId, Instant.now(), closedBy.toString(), reason));
+
+        if (updated > 0) {
+            logger.info("Poll {} closed by {} with reason: {}", pollId, closedBy, reason);
+            return true;
+        } else {
+            logger.warn("Failed to close poll {} - poll not found or already closed", pollId);
+            return false;
+        }
+    }
+
+    public boolean removePoll(String pollId) {
+        int deleted = jdbi.withExtension(PollDAO.class, dao -> dao.deletePoll(pollId));
+
+        if (deleted > 0) {
+            logger.info("Poll {} removed", pollId);
+            return true;
+        } else {
+            logger.warn("Failed to remove poll {} - poll not found", pollId);
+            return false;
+        }
     }
 }
