@@ -2,3 +2,7 @@ name: SimplePolls
 version: '1.0-SNAPSHOT'
 main: me.jrb326.simplePolls.SimplePolls
 api-version: '1.21'
+permissions:
+  simplepolls.createpoll:
+    description: Allows creating new polls
+    default: op
